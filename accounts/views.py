@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login as auth_login
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, UserProfileForm, StudentProfileForm, EmployerProfileForm
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -37,6 +37,33 @@ def profile(request):
     return render(request, 'accounts/profile.html', {
         'user': user,
         'profile': profile_data
+    })
+
+@login_required
+def profile_edit(request):
+    user = request.user
+    if user.role == 'student':
+        profile_instance, created = StudentProfile.objects.get_or_create(user=user)
+        ProfileFormClass = StudentProfileForm
+    else:
+        profile_instance, created = EmployerProfile.objects.get_or_create(user=user)
+        ProfileFormClass = EmployerProfileForm
+
+    if request.method == 'POST':
+        user_form = UserProfileForm(request.POST, request.FILES, instance=user)
+        profile_form = ProfileFormClass(request.POST, request.FILES, instance=profile_instance)
+        
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            return redirect('profile')
+    else:
+        user_form = UserProfileForm(instance=user)
+        profile_form = ProfileFormClass(instance=profile_instance)
+
+    return render(request, 'accounts/profile_edit.html', {
+        'user_form': user_form,
+        'profile_form': profile_form
     })
 
 class UserRegistrationView(viewsets.GenericViewSet, viewsets.mixins.CreateModelMixin):
