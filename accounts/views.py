@@ -43,10 +43,10 @@ def profile(request):
 def profile_edit(request):
     user = request.user
     if user.role == 'student':
-        profile_instance, created = StudentProfile.objects.get_or_create(user=user)
+        profile_instance = getattr(user, 'student_profile', None)
         ProfileFormClass = StudentProfileForm
     else:
-        profile_instance, created = EmployerProfile.objects.get_or_create(user=user)
+        profile_instance = getattr(user, 'employer_profile', None)
         ProfileFormClass = EmployerProfileForm
 
     if request.method == 'POST':
@@ -55,7 +55,11 @@ def profile_edit(request):
         
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
-            profile_form.save()
+            # Save profile without committing to associate with user if it's new
+            new_profile = profile_form.save(commit=False)
+            if profile_instance is None:
+                new_profile.user = user
+            new_profile.save()
             return redirect('profile')
     else:
         user_form = UserProfileForm(instance=user)
