@@ -1,3 +1,9 @@
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login as auth_login
+from django.views.generic import CreateView
+from django.urls import reverse_lazy
+from .forms import CustomUserCreationForm
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -9,6 +15,29 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         return obj.user == request.user
+
+class RegisterView(CreateView):
+    form_class = CustomUserCreationForm
+    template_name = 'accounts/register.html'
+    success_url = reverse_lazy('login')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        # We could auto-login here, but success_url points to login
+        return response
+
+@login_required
+def profile(request):
+    user = request.user
+    if user.role == 'student':
+        profile_data = getattr(user, 'student_profile', None)
+    else:
+        profile_data = getattr(user, 'employer_profile', None)
+    
+    return render(request, 'accounts/profile.html', {
+        'user': user,
+        'profile': profile_data
+    })
 
 class UserRegistrationView(viewsets.GenericViewSet, viewsets.mixins.CreateModelMixin):
     queryset = User.objects.all()

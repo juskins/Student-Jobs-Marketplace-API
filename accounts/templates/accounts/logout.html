@@ -1,0 +1,16 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Logged Out - Student Jobs Marketplace{% endblock %}
+
+{% block content %}
+<div class="auth-card" style="text-align: center;">
+    <h1>Logged Out</h1>
+    <p style="color: var(--text-muted); margin-bottom: 2rem;">You have been successfully signed out of your account.</p>
+    
+    <a href="{% url 'login' %}" class="btn">Sign In Again</a>
+    
+    <p class="footer-text">
+        <a href="/">Go to Homepage</a>
+    </p>
+</div>
+{% endblock %}

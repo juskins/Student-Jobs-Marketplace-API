@@ -1,0 +1,82 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}My Profile - Student Jobs Marketplace{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>My Profile</h1>
+        <p style="color: var(--text-muted); text-align: center;">Manage your account details and role-specific information.</p>
+    </div>
+
+    <div class="profile-grid">
+        <div class="profile-item">
+            <span>Account Status</span>
+            <p><strong style="color: var(--success);">Active {{ user.role|capfirst }}</strong></p>
+        </div>
+        <div class="profile-item">
+            <span>Email Address</span>
+            <p>{{ user.email }}</p>
+        </div>
+        <div class="profile-item">
+            <span>Username</span>
+            <p>{{ user.username }}</p>
+        </div>
+        <div class="profile-item">
+            <span>Full Name</span>
+            <p>{{ user.first_name }} {{ user.last_name }}</p>
+        </div>
+    </div>
+
+    <hr style="margin: 2rem 0; border: 0; border-top: 1px solid var(--border);">
+
+    <div class="profile-header">
+        <h2>{{ user.role|capfirst }} Profile Details</h2>
+    </div>
+
+    {% if profile %}
+        <div class="profile-grid">
+            {% if user.role == 'student' %}
+                <div class="profile-item">
+                    <span>Department</span>
+                    <p>{{ profile.department }}</p>
+                </div>
+                <div class="profile-item">
+                    <span>Year of Study</span>
+                    <p>{{ profile.year_of_study }}</p>
+                </div>
+                <div class="profile-item" style="grid-column: span 2;">
+                    <span>Skills</span>
+                    <p>{{ profile.skills }}</p>
+                </div>
+                <div class="profile-item" style="grid-column: span 2;">
+                    <span>Availability</span>
+                    <p>{{ profile.availability }}</p>
+                </div>
+            {% else %}
+                <div class="profile-item">
+                    <span>Organization</span>
+                    <p>{{ profile.organization_name }}</p>
+                </div>
+                <div class="profile-item">
+                    <span>Phone Number</span>
+                    <p>{{ profile.phone_number }}</p>
+                </div>
+                <div class="profile-item" style="grid-column: span 2;">
+                    <span>Description</span>
+                    <p>{{ profile.description }}</p>
+                </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 2rem; background: var(--bg); border-radius: 0.5rem;">
+            <p>You haven't set up your full profile yet.</p>
+            <a href="#" class="btn" style="width: auto; margin-top: 1rem;">Complete Profile</a>
+        </div>
+    {% endif %}
+    
+    <div style="margin-top: 3rem; text-align: center;">
+        <a href="{% url 'logout' %}" class="btn" style="background: var(--error); width: auto;">Sign Out</a>
+    </div>
+</div>
+{% endblock %}
