@@ -1,0 +1,39 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}
+    {% if object %}Edit Job Posting{% else %}Post a New Job{% endif %} - Student Jobs Marketplace
+{% endblock %}
+
+{% block content %}
+<div class="auth-card" style="max-width: 600px;">
+    <h1>{% if object %}Edit Job Posting{% else %}Create a Job Listing{% endif %}</h1>
+    <p style="color: var(--text-muted); text-align: center; margin-bottom: 2rem;">
+        Provide clear details to find the best student candidates.
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="profile-item" style="margin-bottom: 1.5rem;">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <ul class="errorlist">
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% if field.help_text %}
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">{{ field.help_text|safe }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn">{% if object %}Save Changes{% else %}Post Job{% endif %}</button>
+            <a href="{% url 'job-list' %}" class="btn" style="background: var(--text-muted);">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Available Jobs - Student Jobs Marketplace{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <h1>Available Jobs</h1>
+    {% if user.role == 'employer' %}
+        <a href="{% url 'job-create' %}" class="btn" style="width: auto;">Post a New Job</a>
+    {% endif %}
+</div>
+
+{% if jobs %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+        {% for job in jobs %}
+            <div class="profile-container" style="padding: 1.5rem; transition: transform 0.2s; cursor: pointer;" onclick="location.href='{% url 'job-detail' job.pk %}'">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                    <span style="background: var(--bg); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;">
+                        {{ job.job_type|capfirst }}
+                    </span>
+                    <span style="color: var(--text-muted); font-size: 0.875rem;">{{ job.created_at|date:"M d, Y" }}</span>
+                </div>
+                <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--primary);">{{ job.title }}</h2>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">{{ job.employer.organization_name }}</p>
+                <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-main); font-size: 0.875rem; margin-bottom: 1rem;">
+                    <span>📍 {{ job.location|capfirst }}</span>
+                    {% if job.salary %}
+                        <span style="margin-left: auto; font-weight: 600; color: var(--success);">${{ job.salary }}</span>
+                    {% endif %}
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    {% for skill in job.required_skills.split %}
+                        <span style="background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 0.2rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    {% if is_paginated %}
+        <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="btn" style="width: auto;">Previous</a>
+            {% endif %}
+            <span style="align-self: center;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="btn" style="width: auto;">Next</a>
+            {% endif %}
+        </div>
+    {% endif %}
+{% else %}
+    <div style="text-align: center; padding: 4rem; background: var(--card-bg); border-radius: 1rem;">
+        <h2 style="color: var(--text-muted);">No jobs available at the moment.</h2>
+        <p>Check back later or try adjusting your search filters.</p>
+    </div>
+{% endif %}
+{% endblock %}
