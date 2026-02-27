@@ -11,7 +11,19 @@ from .serializers import JobSerializer, JobApplicationSerializer
 
 class EmployerRequiredMixin(UserPassesTestMixin):
     def test_func(self):
-        return self.request.user.is_authenticated and self.request.user.role == 'employer'
+        # Check if user is authenticated and is an employer
+        if not (self.request.user.is_authenticated and self.request.user.role == 'employer'):
+            return False
+        
+        # Check if they have actually completed their employer profile
+        return hasattr(self.request.user, 'employer_profile')
+
+    def handle_no_permission(self):
+        if self.request.user.is_authenticated and self.request.user.role == 'employer':
+            from django.contrib import messages
+            messages.warning(self.request, "Please complete your Employer Profile details before posting or managing jobs.")
+            return redirect('profile_edit')
+        return super().handle_no_permission()
 
 class JobListView(ListView):
     model = Job

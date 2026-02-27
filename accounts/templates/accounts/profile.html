@@ -91,7 +91,7 @@
     {% else %}
         <div style="text-align: center; padding: 2rem; background: var(--bg); border-radius: 0.5rem;">
             <p>You haven't set up your full profile yet.</p>
-            <a href="#" class="btn" style="width: auto; margin-top: 1rem;">Complete Profile</a>
+            <a href="{% url 'profile_edit' %}" class="btn" style="width: auto; margin-top: 1rem;">Complete Profile</a>
         </div>
     {% endif %}
     

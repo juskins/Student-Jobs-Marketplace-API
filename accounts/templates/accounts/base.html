@@ -191,12 +191,35 @@
             font-size: 1.125rem;
             color: var(--text-main);
         }
+
+        /* Flash Messages */
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid transparent;
+        }
+        .alert-error {
+            background: #fee2e2;
+            color: #b91c1c;
+            border-color: #fecaca;
+        }
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+        .alert-success {
+            background: #dcfce7;
+            color: #15803d;
+            border-color: #bbf7d0;
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <nav>
-        <a href="/" class="logo">JobMarket</a>
+        <a href="/" class="logo">CampusConnect</a>
         <div class="nav-links">
             <a href="{% url 'job-list' %}">Find Jobs</a>
             {% if user.is_authenticated %}
@@ -213,6 +236,13 @@
     </nav>
 
     <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
         {% block content %}
         {% endblock %}
     </div>
