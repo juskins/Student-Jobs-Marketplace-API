@@ -214,6 +214,29 @@
             color: #15803d;
             border-color: #bbf7d0;
         }
+
+        /* Application Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            background: var(--bg);
+            color: var(--text-main);
+        }
+        .status-accepted {
+            background: var(--success);
+            color: white;
+        }
+        .status-rejected {
+            background: var(--error);
+            color: white;
+        }
+        .status-reviewed {
+            background: var(--primary);
+            color: white;
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -224,6 +247,9 @@
             <a href="{% url 'job-list' %}">Find Jobs</a>
             {% if user.is_authenticated %}
                 <a href="{% url 'profile' %}">Profile</a>
+                {% if user.role == 'student' %}
+                    <a href="{% url 'student-applications' %}">My Applications</a>
+                {% endif %}
                 <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
                     {% csrf_token %}
                 </form>

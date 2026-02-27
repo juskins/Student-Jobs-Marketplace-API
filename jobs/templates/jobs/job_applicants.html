@@ -1,0 +1,62 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Applicants for {{ job.title }} - CampusConnect{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+        <h1>Applicants</h1>
+        <p style="color: var(--text-muted);">Review candidates for: <strong>{{ job.title }}</strong></p>
+    </div>
+    <a href="{% url 'job-detail' job.pk %}" class="btn" style="width: auto; background: var(--bg); color: var(--text-main);">Back to Job</a>
+</div>
+
+{% if applications %}
+    <div style="display: grid; gap: 1.5rem;">
+        {% for app in applications %}
+            <div class="profile-container" style="padding: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                    <div style="display: flex; gap: 1.5rem; align-items: center;">
+                        {% if app.student.user.profile_picture %}
+                            <img src="{{ app.student.user.profile_picture.url }}" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
+                        {% else %}
+                            <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; color: var(--primary);">
+                                {{ app.student.full_name|slice:":1" }}
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h2 style="font-size: 1.25rem;">{{ app.student.full_name }}</h2>
+                            <p style="color: var(--text-muted); font-size: 0.875rem;">{{ app.student.department }} • {{ app.student.user.email }}</p>
+                        </div>
+                    </div>
+                    <span style="padding: 0.5rem 1rem; border-radius: 2rem; font-weight: 600; font-size: 0.875rem; background: var(--bg);">
+                        {{ app.status|capfirst }}
+                    </span>
+                </div>
+
+                <div style="background: var(--bg); padding: 1.5rem; border-radius: 1rem; margin-bottom: 1.5rem;">
+                    <h4 style="margin-bottom: 0.5rem; font-size: 0.875rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Cover Letter</h4>
+                    <p style="white-space: pre-wrap; line-height: 1.6;">{{ app.cover_letter|default:"No cover letter provided." }}</p>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 1rem;">
+                        {% if app.resume %}
+                            <a href="{{ app.resume.url }}" target="_blank" class="btn" style="width: auto; padding: 0.5rem 1rem; font-size: 0.875rem; background: var(--primary);">View Resume</a>
+                        {% elif app.student.resume %}
+                            <a href="{{ app.student.resume.url }}" target="_blank" class="btn" style="width: auto; padding: 0.5rem 1rem; font-size: 0.875rem; background: var(--primary);">View Profile Resume</a>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- We'll add status update buttons in a future enhancement if needed -->
+                    <p style="font-size: 0.75rem; color: var(--text-muted);">Received on {{ app.applied_at|date:"M d, Y H:i" }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div style="text-align: center; padding: 4rem; background: var(--card-bg); border-radius: 1rem; border: 1px solid var(--border);">
+        <p style="font-size: 1.125rem; color: var(--text-muted);">No applications received yet.</p>
+    </div>
+{% endif %}
+{% endblock %}

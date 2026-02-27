@@ -8,6 +8,8 @@ from jobs.views import HomeView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', HomeView.as_view(), name='home'),
+    path('accounts/', include('accounts.urls')),
+    path('jobs/', include('jobs.urls')),
     path('api/accounts/', include('accounts.urls')),
     path('api/jobs/', include('jobs.urls')),
 ]

@@ -1,8 +1,9 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
-from django.shortcuts import redirect
-from .forms import JobForm
+from .forms import JobForm, JobApplicationForm
+from django.shortcuts import get_object_or_404, render
+from django.contrib import messages
 from rest_framework import viewsets, permissions, filters, status
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -68,6 +69,57 @@ class JobDeleteView(LoginRequiredMixin, EmployerRequiredMixin, DeleteView):
 
     def get_queryset(self):
         return Job.objects.filter(employer=self.request.user.employer_profile)
+
+class StudentApplicationsView(LoginRequiredMixin, ListView):
+    model = JobApplication
+    template_name = 'jobs/student_applications.html'
+    context_object_name = 'applications'
+
+    def get_queryset(self):
+        return JobApplication.objects.filter(student=self.request.user.student_profile).order_by('-applied_at')
+
+class JobApplicantsView(LoginRequiredMixin, EmployerRequiredMixin, DetailView):
+    model = Job
+    template_name = 'jobs/job_applicants.html'
+    context_object_name = 'job'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['applications'] = self.object.applications.all().order_by('-applied_at')
+        return context
+
+class JobApplyView(LoginRequiredMixin, CreateView):
+    model = JobApplication
+    form_class = JobApplicationForm
+    template_name = 'jobs/job_apply.html'
+    success_url = reverse_lazy('student-applications')
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.role != 'student':
+            messages.error(request, "Only students can apply for jobs.")
+            return redirect('job-detail', pk=self.kwargs['pk'])
+        
+        if not hasattr(request.user, 'student_profile'):
+            messages.warning(request, "Please complete your Student Profile details before applying for jobs.")
+            return redirect('profile_edit')
+            
+        # Prevent duplicate applications
+        if JobApplication.objects.filter(student=request.user.student_profile, job_id=self.kwargs['pk']).exists():
+            messages.info(request, "You have already applied for this job.")
+            return redirect('job-detail', pk=self.kwargs['pk'])
+            
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['job'] = get_object_or_404(Job, pk=self.kwargs['pk'])
+        return context
+
+    def form_valid(self, form):
+        form.instance.student = self.request.user.student_profile
+        form.instance.job = get_object_or_404(Job, pk=self.kwargs['pk'])
+        messages.success(self.request, f"Successfully applied for {form.instance.job.title}!")
+        return super().form_valid(form)
 
 # DRF ViewSets stay below...
 
