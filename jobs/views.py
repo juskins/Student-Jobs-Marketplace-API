@@ -29,6 +29,21 @@ class EmployerRequiredMixin(UserPassesTestMixin):
             return redirect('profile_edit')
         return super().handle_no_permission()
 
+class StudentRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        # Check if user is authenticated and is a student
+        if not (self.request.user.is_authenticated and self.request.user.role == 'student'):
+            return False
+        
+        # Check if they have actually completed their student profile
+        return hasattr(self.request.user, 'student_profile')
+
+    def handle_no_permission(self):
+        if self.request.user.is_authenticated and self.request.user.role == 'student':
+            messages.warning(self.request, "Please complete your Student Profile details first.")
+            return redirect('profile_edit')
+        return super().handle_no_permission()
+
 class JobListView(ListView):
     model = Job
     template_name = 'jobs/job_list.html'
@@ -70,7 +85,7 @@ class JobDeleteView(LoginRequiredMixin, EmployerRequiredMixin, DeleteView):
     def get_queryset(self):
         return Job.objects.filter(employer=self.request.user.employer_profile)
 
-class StudentApplicationsView(LoginRequiredMixin, ListView):
+class StudentApplicationsView(LoginRequiredMixin, StudentRequiredMixin, ListView):
     model = JobApplication
     template_name = 'jobs/student_applications.html'
     context_object_name = 'applications'
@@ -88,23 +103,15 @@ class JobApplicantsView(LoginRequiredMixin, EmployerRequiredMixin, DetailView):
         context['applications'] = self.object.applications.all().order_by('-applied_at')
         return context
 
-class JobApplyView(LoginRequiredMixin, CreateView):
+class JobApplyView(LoginRequiredMixin, StudentRequiredMixin, CreateView):
     model = JobApplication
     form_class = JobApplicationForm
     template_name = 'jobs/job_apply.html'
     success_url = reverse_lazy('student-applications')
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.role != 'student':
-            messages.error(request, "Only students can apply for jobs.")
-            return redirect('job-detail', pk=self.kwargs['pk'])
-        
-        if not hasattr(request.user, 'student_profile'):
-            messages.warning(request, "Please complete your Student Profile details before applying for jobs.")
-            return redirect('profile_edit')
-            
         # Prevent duplicate applications
-        if JobApplication.objects.filter(student=request.user.student_profile, job_id=self.kwargs['pk']).exists():
+        if hasattr(request.user, 'student_profile') and JobApplication.objects.filter(student=request.user.student_profile, job_id=self.kwargs['pk']).exists():
             messages.info(request, "You have already applied for this job.")
             return redirect('job-detail', pk=self.kwargs['pk'])
             
