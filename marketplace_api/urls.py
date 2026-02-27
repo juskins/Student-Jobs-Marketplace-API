@@ -3,8 +3,11 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from jobs.views import HomeView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', HomeView.as_view(), name='home'),
     path('api/accounts/', include('accounts.urls')),
     path('api/jobs/', include('jobs.urls')),
 ]

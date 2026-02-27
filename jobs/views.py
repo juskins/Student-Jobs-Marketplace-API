@@ -1,4 +1,4 @@
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
@@ -8,6 +8,9 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Job, JobApplication
 from .serializers import JobSerializer, JobApplicationSerializer
+
+class HomeView(TemplateView):
+    template_name = 'jobs/home.html'
 
 class EmployerRequiredMixin(UserPassesTestMixin):
     def test_func(self):

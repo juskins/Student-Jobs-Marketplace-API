@@ -219,7 +219,7 @@
 </head>
 <body>
     <nav>
-        <a href="/" class="logo">CampusConnect</a>
+        <a href="{% url 'home' %}" class="logo">CampusConnect</a>
         <div class="nav-links">
             <a href="{% url 'job-list' %}">Find Jobs</a>
             {% if user.is_authenticated %}
