@@ -6,8 +6,8 @@ from .views import (
 )
 
 router = DefaultRouter()
-router.register(r'listings', JobViewSet)
-router.register(r'applications', JobApplicationViewSet)
+router.register(r'listings', JobViewSet, basename='job-api')
+router.register(r'applications', JobApplicationViewSet, basename='application-api')
 
 urlpatterns = [
     path('list/', JobListView.as_view(), name='job-list'),

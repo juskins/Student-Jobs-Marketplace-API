@@ -13,8 +13,8 @@
 {% if jobs %}
     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
         {% for job in jobs %}
-            <div class="profile-container" style="padding: 1.5rem; transition: transform 0.2s; cursor: pointer;" onclick="location.href='{% url 'job-detail' job.pk %}'">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+        <a href="{% url 'job-detail' job.pk %}" class="profile-container" style="display: block; text-decoration: none; color: inherit; padding: 1.5rem; transition: transform 0.2s;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
                     <span style="background: var(--bg); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;">
                         {{ job.job_type|capfirst }}
                     </span>
@@ -33,7 +33,7 @@
                         <span style="background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 0.2rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">{{ skill }}</span>
                     {% endfor %}
                 </div>
-            </div>
+        </a>
         {% endfor %}
     </div>
     
