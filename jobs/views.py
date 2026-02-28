@@ -1,8 +1,147 @@
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.urls import reverse_lazy
+from .forms import JobForm, JobApplicationForm
+from django.shortcuts import get_object_or_404, render
+from django.contrib import messages
 from rest_framework import viewsets, permissions, filters, status
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Job, JobApplication
 from .serializers import JobSerializer, JobApplicationSerializer
+
+class HomeView(TemplateView):
+    template_name = 'jobs/home.html'
+
+class EmployerRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        # Check if user is authenticated and is an employer
+        if not (self.request.user.is_authenticated and self.request.user.role == 'employer'):
+            return False
+        
+        # Check if they have actually completed their employer profile
+        return hasattr(self.request.user, 'employer_profile')
+
+    def handle_no_permission(self):
+        if self.request.user.is_authenticated and self.request.user.role == 'employer':
+            from django.contrib import messages
+            messages.warning(self.request, "Please complete your Employer Profile details before posting or managing jobs.")
+            return redirect('profile_edit')
+        return super().handle_no_permission()
+
+class StudentRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        # Check if user is authenticated and is a student
+        if not (self.request.user.is_authenticated and self.request.user.role == 'student'):
+            return False
+        
+        # Check if they have actually completed their student profile
+        return hasattr(self.request.user, 'student_profile')
+
+    def handle_no_permission(self):
+        if self.request.user.is_authenticated and self.request.user.role == 'student':
+            messages.warning(self.request, "Please complete your Student Profile details first.")
+            return redirect('profile_edit')
+        return super().handle_no_permission()
+
+class JobListView(ListView):
+    model = Job
+    template_name = 'jobs/job_list.html'
+    context_object_name = 'jobs'
+    paginate_by = 10
+
+    def get_queryset(self):
+        return Job.objects.filter(status='open').order_by('-created_at')
+
+class JobDetailView(DetailView):
+    model = Job
+    template_name = 'jobs/job_detail.html'
+    context_object_name = 'job'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated and user.role == 'student':
+            if hasattr(user, 'student_profile'):
+                application = JobApplication.objects.filter(
+                    student=user.student_profile, 
+                    job=self.object
+                ).first()
+                context['has_applied'] = application is not None
+                context['application_status'] = application.status if application else None
+        return context
+
+class JobCreateView(LoginRequiredMixin, EmployerRequiredMixin, CreateView):
+    model = Job
+    form_class = JobForm
+    template_name = 'jobs/job_form.html'
+    success_url = reverse_lazy('job-list')
+
+    def form_valid(self, form):
+        form.instance.employer = self.request.user.employer_profile
+        return super().form_valid(form)
+
+class JobUpdateView(LoginRequiredMixin, EmployerRequiredMixin, UpdateView):
+    model = Job
+    form_class = JobForm
+    template_name = 'jobs/job_form.html'
+    success_url = reverse_lazy('job-list')
+
+    def get_queryset(self):
+        return Job.objects.filter(employer=self.request.user.employer_profile)
+
+class JobDeleteView(LoginRequiredMixin, EmployerRequiredMixin, DeleteView):
+    model = Job
+    template_name = 'jobs/job_confirm_delete.html'
+    success_url = reverse_lazy('job-list')
+
+    def get_queryset(self):
+        return Job.objects.filter(employer=self.request.user.employer_profile)
+
+class StudentApplicationsView(LoginRequiredMixin, StudentRequiredMixin, ListView):
+    model = JobApplication
+    template_name = 'jobs/student_applications.html'
+    context_object_name = 'applications'
+
+    def get_queryset(self):
+        return JobApplication.objects.filter(student=self.request.user.student_profile).order_by('-applied_at')
+
+class JobApplicantsView(LoginRequiredMixin, EmployerRequiredMixin, DetailView):
+    model = Job
+    template_name = 'jobs/job_applicants.html'
+    context_object_name = 'job'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['applications'] = self.object.applications.all().order_by('-applied_at')
+        return context
+
+class JobApplyView(LoginRequiredMixin, StudentRequiredMixin, CreateView):
+    model = JobApplication
+    form_class = JobApplicationForm
+    template_name = 'jobs/job_apply.html'
+    success_url = reverse_lazy('student-applications')
+
+    def dispatch(self, request, *args, **kwargs):
+        # Prevent duplicate applications
+        if hasattr(request.user, 'student_profile') and JobApplication.objects.filter(student=request.user.student_profile, job_id=self.kwargs['pk']).exists():
+            messages.info(request, "You have already applied for this job.")
+            return redirect('job-detail', pk=self.kwargs['pk'])
+            
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['job'] = get_object_or_404(Job, pk=self.kwargs['pk'])
+        return context
+
+    def form_valid(self, form):
+        form.instance.student = self.request.user.student_profile
+        form.instance.job = get_object_or_404(Job, pk=self.kwargs['pk'])
+        messages.success(self.request, f"Successfully applied for {form.instance.job.title}!")
+        return super().form_valid(form)
+
+# DRF ViewSets stay below...
 
 class IsEmployer(permissions.BasePermission):
     def has_permission(self, request, view):

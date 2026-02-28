@@ -1,0 +1,31 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Login - Student Jobs Marketplace{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+    <h1>Welcome Back</h1>
+    <form method="post">
+        {% csrf_token %}
+        {% if form.errors %}
+            <p class="errorlist">Invalid email or password. Please try again.</p>
+        {% endif %}
+        
+        <div class="profile-item">
+            <label for="id_username">Email Address</label>
+            {{ form.username }}
+        </div>
+        
+        <div class="profile-item" style="margin-top: 1rem;">
+            <label for="id_password">Password</label>
+            {{ form.password }}
+        </div>
+
+        <button type="submit" class="btn" style="margin-top: 1.5rem;">Sign In</button>
+    </form>
+    
+    <p class="footer-text">
+        Don't have an account? <a href="{% url 'register' %}">Register now</a>
+    </p>
+</div>
+{% endblock %}

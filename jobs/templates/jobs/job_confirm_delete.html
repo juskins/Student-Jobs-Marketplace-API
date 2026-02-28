@@ -1,0 +1,20 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Confirm Delete - {{ job.title }}{% endblock %}
+
+{% block content %}
+<div class="auth-card" style="text-align: center;">
+    <h1 style="color: var(--error);">Delete Job Posting?</h1>
+    <p style="margin-bottom: 2rem; color: var(--text-main);">
+        Are you sure you want to delete "<strong>{{ job.title }}</strong>"? This action cannot be undone.
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <button type="submit" class="btn" style="background: var(--error); width: auto; padding: 0.75rem 2rem;">Yes, Delete Forever</button>
+            <a href="{% url 'job-detail' job.pk %}" class="btn" style="background: var(--text-muted); width: auto; padding: 0.75rem 2rem;">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

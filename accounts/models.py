@@ -9,6 +9,8 @@ class User(AbstractUser):
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
     email = models.EmailField(unique=True)
+    bio = models.TextField(blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
@@ -23,7 +25,7 @@ class StudentProfile(models.Model):
     department = models.CharField(max_length=255)
     year_of_study = models.IntegerField()
     skills = models.TextField()
-    resume_url = models.URLField(blank=True, null=True)
+    resume = models.FileField(upload_to='resumes/', blank=True, null=True)
     availability = models.TextField()
 
     def __str__(self):

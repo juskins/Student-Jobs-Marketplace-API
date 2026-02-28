@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student Jobs Marketplace{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: blue;
+            --primary-hover: rgb(0, 145, 255);
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --error: #ef4444;
+            --success: #22c55e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        nav {
+            background: var(--card-bg);
+            border-bottom: 1px border var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .auth-card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            max-width: 450px;
+            margin: 4rem auto;
+        }
+
+        h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        form p {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s, ring 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .errorlist {
+            list-style: none;
+            color: var(--error);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .footer-text a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Profile Styles */
+        .profile-container {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .profile-header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .profile-item {
+            margin-bottom: 1rem;
+        }
+
+        .profile-item span {
+            display: block;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .profile-item p {
+            font-size: 1.125rem;
+            color: var(--text-main);
+        }
+
+        /* Flash Messages */
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid transparent;
+        }
+        .alert-error {
+            background: #fee2e2;
+            color: #b91c1c;
+            border-color: #fecaca;
+        }
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+        .alert-success {
+            background: #dcfce7;
+            color: #15803d;
+            border-color: #bbf7d0;
+        }
+
+        /* Application Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            background: var(--bg);
+            color: var(--text-main);
+        }
+        .status-accepted {
+            background: var(--success);
+            color: white;
+        }
+        .status-rejected {
+            background: var(--error);
+            color: white;
+        }
+        .status-reviewed {
+            background: var(--primary);
+            color: white;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav>
+        <a href="{% url 'home' %}" class="logo">CampusConnect</a>
+        <div class="nav-links">
+            <a href="{% url 'job-list' %}">Find Jobs</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}">Profile</a>
+                {% if user.role == 'student' %}
+                    <a href="{% url 'student-applications' %}">My Applications</a>
+                {% endif %}
+                <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+                    {% csrf_token %}
+                </form>
+                <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>

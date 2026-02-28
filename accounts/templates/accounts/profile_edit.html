@@ -1,0 +1,57 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Edit Profile - Student Jobs Marketplace{% endblock %}
+
+{% block content %}
+<div class="auth-card" style="max-width: 700px;">
+    <h1>Update Your Profile</h1>
+    <p style="color: var(--text-muted); text-align: center; margin-bottom: 2rem;">
+        Keep your information up to date to attract the best opportunities.
+    </p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div style="background: var(--bg); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 2rem;">
+            <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Basic Information</h3>
+            {% for field in user_form %}
+                <div class="profile-item" style="margin-bottom: 1rem;">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <ul class="errorlist">
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div style="background: var(--bg); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 2rem;">
+            <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+                {{ user.role|capfirst }} Specific Details
+            </h3>
+            {% for field in profile_form %}
+                <div class="profile-item" style="margin-bottom: 1rem;">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <ul class="errorlist">
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" class="btn">Save Changes</button>
+            <a href="{% url 'profile' %}" class="btn" style="background: var(--text-muted);">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

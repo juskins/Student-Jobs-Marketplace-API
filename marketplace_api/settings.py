@@ -147,3 +147,10 @@ REST_FRAMEWORK = {
 
 CORS_ALLOW_ALL_ORIGINS = True # Change in production
 
+LOGIN_REDIRECT_URL = 'profile'
+LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = 'login'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+

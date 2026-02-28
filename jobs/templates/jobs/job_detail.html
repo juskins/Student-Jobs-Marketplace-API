@@ -1,0 +1,73 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}{{ job.title }} - Student Jobs Marketplace{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); padding-bottom: 2rem; margin-bottom: 2rem;">
+        <div>
+            <h1 style="text-align: left; margin-bottom: 0.5rem;">{{ job.title }}</h1>
+            <p style="font-size: 1.25rem; color: var(--text-muted);">{{ job.employer.organization_name }}</p>
+        </div>
+        <div style="text-align: center;">
+            <p style="background: var(--primary); color: white; padding: 0.5rem; border-radius: 2rem; font-weight: 600; font-size: 0.875rem;">
+                {{ job.status|capfirst }}
+            </p>
+            {% if user.employer_profile == job.employer %}
+                <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                    <a href="{% url 'job-applicants' job.pk %}" class="btn" style="width: 100%; border: 1px solid var(--primary); background: transparent; color: var(--primary);">View Applicants</a>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a href="{% url 'job-update' job.pk %}" class="btn" style="width: auto; background: var(--text-muted); flex: 1;">Edit</a>
+                        <a href="{% url 'job-delete' job.pk %}" class="btn" style="width: auto; background: var(--error); flex: 1;">Delete</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="profile-grid">
+        <div class="profile-item">
+            <span>Location</span>
+            <p>📍 {{ job.location|capfirst }}</p>
+        </div>
+        <div class="profile-item">
+            <span>Job Type</span>
+            <p>🕒 {{ job.job_type|capfirst }}</p>
+        </div>
+        <div class="profile-item">
+            <span>Salary / Pay Rate</span>
+            <p>💰 {% if job.salary %}${{ job.salary }}{% else %}Not specified{% endif %}</p>
+        </div>
+        <div class="profile-item">
+            <span>Application Deadline</span>
+            <p>📅 {{ job.deadline|date:"M d, Y H:i" }}</p>
+        </div>
+    </div>
+
+    <div style="margin-top: 2.5rem;">
+        <h3 style="margin-bottom: 1rem;">Job Description</h3>
+        <div style="line-height: 1.8; color: var(--text-main); white-space: pre-wrap;">{{ job.description }}</div>
+    </div>
+
+    <div style="margin-top: 2.5rem;">
+        <h3 style="margin-bottom: 1rem;">Required Skills</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+            {% for skill in job.required_skills.split %}
+                <span style="background: var(--bg); color: var(--primary); padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid var(--border);">{{ skill }}</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if user.role == 'student' %}
+        <div style="margin-top: 3rem; text-align: center; border-top: 1px solid var(--border); padding-top: 2rem;">
+            {% if has_applied %}
+                <button class="btn" style="width: auto; padding: 1rem 3rem; font-size: 1.125rem; background: var(--success);" disabled>Already Applied</button>
+                <p style="margin-top: 1rem; color: var(--success); font-size: 0.875rem;">Your application is currently {{ application_status|capfirst }}.</p>
+            {% else %}
+                <a href="{% url 'job-apply' job.pk %}" class="btn" style="width: auto; padding: 1rem 3rem; font-size: 1.125rem;">Apply for this Job</a>
+                <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.875rem;">Your profile details will be shared with the employer upon application.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
