@@ -58,6 +58,19 @@ class JobDetailView(DetailView):
     template_name = 'jobs/job_detail.html'
     context_object_name = 'job'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated and user.role == 'student':
+            if hasattr(user, 'student_profile'):
+                application = JobApplication.objects.filter(
+                    student=user.student_profile, 
+                    job=self.object
+                ).first()
+                context['has_applied'] = application is not None
+                context['application_status'] = application.status if application else None
+        return context
+
 class JobCreateView(LoginRequiredMixin, EmployerRequiredMixin, CreateView):
     model = Job
     form_class = JobForm

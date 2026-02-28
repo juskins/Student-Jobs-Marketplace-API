@@ -60,21 +60,13 @@
 
     {% if user.role == 'student' %}
         <div style="margin-top: 3rem; text-align: center; border-top: 1px solid var(--border); padding-top: 2rem;">
-            {% if user.student_profile and job.id in user.student_profile.applications.all %}
-                 <!-- This logic is slightly complex for template, simplified by checking in view but lets try common approach -->
+            {% if has_applied %}
+                <button class="btn" style="width: auto; padding: 1rem 3rem; font-size: 1.125rem; background: var(--success);" disabled>Already Applied</button>
+                <p style="margin-top: 1rem; color: var(--success); font-size: 0.875rem;">Your application is currently {{ application_status|capfirst }}.</p>
+            {% else %}
+                <a href="{% url 'job-apply' job.pk %}" class="btn" style="width: auto; padding: 1rem 3rem; font-size: 1.125rem;">Apply for this Job</a>
+                <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.875rem;">Your profile details will be shared with the employer upon application.</p>
             {% endif %}
-            
-            {% with already_applied=False %}
-                {% for app in user.student_profile.applications.all %}
-                    {% if app.job_id == job.id %}
-                        <button class="btn" style="width: auto; padding: 1rem 3rem; font-size: 1.125rem; background: var(--success);" disabled>Already Applied</button>
-                        <p style="margin-top: 1rem; color: var(--success); font-size: 0.875rem;">Your application is currently {{ app.status }}.</p>
-                    {% endif %}
-                {% empty %}
-                    <a href="{% url 'job-apply' job.pk %}" class="btn" style="width: auto; padding: 1rem 3rem; font-size: 1.125rem;">Apply for this Job</a>
-                    <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.875rem;">Your profile details will be shared with the employer upon application.</p>
-                {% endfor %}
-            {% endwith %}
         </div>
     {% endif %}
 </div>
